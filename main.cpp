@@ -1,3 +1,12 @@
+/*
+* 
+* Austin Martin
+* 3/1/2024
+* This program prompts the user to select from a menu of options
+* that will guide the user through a simple process of creating a reservation
+* checking in that reservation, ordering food, completing the order, and then paying the bill
+* 
+*/
 #include <iostream>
 #include <string.h>
 #include <iomanip>
@@ -75,11 +84,11 @@ void createReservation() {
 		cout << "You are at the maximum reservations!" << endl;
 	}
 	else
-	{
+	{														// reservation is the object for Reservations //				
 		cout << "Enter a name for the reservation: "; cin >> reservation.firstName >> reservation.lastName;
 		do { 
 			cout << "\nEnter the number of people in the party: "; cin >> reservation.reservationSize;
-			if (cin.fail())
+			if (cin.fail()) // keeping the program running if inputs are invalid
 			{
 				if (reservation.reservationSize > 10)
 				{
@@ -93,7 +102,7 @@ void createReservation() {
 				cin.ignore(1200, '\n');
 
 			}
-				
+													// when reservationSize is not an integer isDigit returns 0 //				
 		} while (reservation.reservationSize > 10 || isdigit(reservation.reservationSize) == 0);
 		cout << "\nEnter the time for the reservation in HH:MM AM/PM: "; cin >> reservation.time >> reservation.amORpm;
 		reservation.checkedIn = false;
@@ -104,6 +113,8 @@ void confirmReservation()
 {
 	int response = 0;
 	char choice = 0;
+	// the do while statement will allow the user to make infinitely many changes until they are
+	// happy with the details within the reservation
 	do {
 		cout << "\nPlease Confirm the reservation:";
 		cout << "\nReservation Name: " << reservation.firstName << " " << reservation.lastName;
@@ -170,7 +181,7 @@ void checkInReservation()
 		cout << "Select the reservation you would like to check in:\n";
 		for (int i = 0; i < numReservations; i++)
 		{
-			if (!reservations[i].checkedIn)
+			if (!reservations[i].checkedIn) // only display reservations that are not checked in
 			{
 				cout << i + 1 << ". "
 					
@@ -191,7 +202,7 @@ void checkInReservation()
 		reservations[chosenReservation - 1].checkedIn = true;
 		cout << "Reservation checked in successfully!\n";
 		cout << "Choose a table to be seated:\n";
-		for (int j = 0; j <= numTables; j++)
+		for (int j = 0; j <= numTables; j++) // only display tables that are greater in size and available to be sat at
 		{
 			if (orders[j].table.available && orders[j].table.size >= reservations[chosenReservation - 1].reservationSize)
 			{
@@ -211,6 +222,7 @@ void checkInReservation()
 
 		// this sets the size of the table equal to the size of the reservation
 		orders[selectedTable - 1].table.numberOfPeople = reservations[chosenReservation - 1].reservationSize;
+
 	}
 	else { cout << "You must make a reservation first." << endl; }
 }
@@ -221,9 +233,9 @@ void createOrder()
 	int entreSelection;
 	int tableToOrder;
 	cout << "Please select the table that is ready to order: \n";
-	for (int i = 0; i < numTables; i++)
+	for (int i = 0; i < numTables; i++) // only display tables that are sat with guests
 	{
-		if (orders[i].isReady == false && orders[i].table.numberOfPeople > 0)	
+		if (orders[i].isReady == false && orders[i].table.numberOfPeople > 0) 
 		{
 			cout << orders[i].table.tableNumber << ". Table for " << orders[i].table.numberOfPeople << " people.\n";
 		}
@@ -263,9 +275,12 @@ void createOrder()
 			}
 			switch (entreSelection)
 			{
+				// static cast allows the program to grab the value stored at each enumeration 
+				// by casting the enum variable first then we save that variable to a separate array
+				// this array will be used in calculate bill and pay funct.
 			case 1:
 				entreSelection = VEGGIE_BURGER;
-				orders[tableToOrder - 1].items[j] = static_cast<MenuItem>(entreSelection);
+				orders[tableToOrder - 1].items[j] = static_cast<MenuItem>(entreSelection); 
 				orders[tableToOrder - 1].entreName[j] = "Veggie Burger";
 				numOrders++;
 				break;
@@ -355,7 +370,9 @@ void createOrder()
 		cout << "The restaurant is completely full!! Have people spend pay their bill and leave." << endl;
 	}
 	orders[tableToOrder - 1].isReady = true;
-	cout << "\n" << numOrders;	
+	cout << "\n" << numOrders; 
+	// this a checker that I created to be sure the program was logically processing everything
+	// Also numOrders can not be higher than 50 at any given time
 }	
 
 void completeOrder()
@@ -385,7 +402,7 @@ void calculateBill()
 	double taxes = 0.10;
 	double tip = 0.20;
 	int selectedTable;
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 50; i++) // selecting between tables that are ready to pay
 	{
 		if (orders[i].complete == true && orders[i].paid == false)
 		{
@@ -411,11 +428,11 @@ void calculateBill()
 	cout << "\tTip: $" << subtotal * tip << endl;
 	cout << "\tTaxes: $" << subtotal * taxes << endl;
 	cout << "\tTotal: $" << fixed << setprecision(2) << ((subtotal*tip) + (subtotal*taxes) + (subtotal)) << endl;
-	orders[selectedTable - 1].paid = true;
-	orders[selectedTable - 1].table.available = true;
-	orders[selectedTable - 1].complete = false;
-	orders[selectedTable - 1].isReady = false;
-	numOrders -= orders[selectedTable - 1].table.numberOfPeople;
+	orders[selectedTable - 1].paid = true; // resetting values
+	orders[selectedTable - 1].table.available = true; // resetting values
+	orders[selectedTable - 1].complete = false; // resetting values
+	orders[selectedTable - 1].isReady = false; // resetting values
+	numOrders -= orders[selectedTable - 1].table.numberOfPeople; // resetting values
 }
 
 int main() 
@@ -427,7 +444,7 @@ int main()
 	for (int i = 0; i < numTables; i++)
 	{
 
-		//tables[i] = {i + 1, 2, 0, true}
+		// tables[i] = {i + 1, 2, 0, true}
 
 		if (i < 8)
 		{
