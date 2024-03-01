@@ -7,10 +7,6 @@ g++.exe (GCC) 11.2.0
 
 nothing else should be needed. 
 
-
-
-Here  are the instructions that were given to me for my final project!
-
 Maurice used to work in IT but decided it was time for a career change.  He opened a restaurant called MessiJoes. You will be creating a program to help manage the restaurant operations. Your program must take reservations and check customers in when they arrive. You will also need to manage the orders by allowing for order entry and marking an order as completed. The final functionality should calculate and enter payment for customer bills. The program must meet the following requirements:
 
 You will need to create a struct to manage a reservation. A reservation will be for a certain time, have the customer name, and the number of people.
