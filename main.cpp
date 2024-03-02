@@ -13,6 +13,20 @@
 #include <ctype.h>
 using namespace std;
 
+
+// Validation function for letters
+bool isValidLetterInput(char input) {
+	return (input == 'Y' || input == 'N' || input == 'C');
+}
+
+// Validation function for menu choices
+bool isValidMenuChoice(int choice, int maxChoice) {
+	return (choice >= 1 && choice <= maxChoice);
+}
+
+
+
+
 enum MenuItem {
 	VEGGIE_BURGER = 35,
 	HAMBURGER = 45,
@@ -84,33 +98,36 @@ void createReservation() {
 		cout << "You are at the maximum reservations!" << endl;
 	}
 	else
-	{														// reservation is the object for Reservations //				
-		cout << "Enter a name for the reservation: "; cin >> reservation.firstName >> reservation.lastName;
-		do { 
-			cout << "\nEnter the number of people in the party: "; cin >> reservation.reservationSize;
-			if (cin.fail()) // keeping the program running if inputs are invalid
-			{
-				if (reservation.reservationSize > 10)
-				{
-					cout << "The maximum party size is 10. Try again :(" << endl;
-				}
-				if (isdigit(reservation.reservationSize) == 0)
-				{
-					cout << "\nYou must enter an integer.\n";
-				}
-				cin.clear();
-				cin.ignore(1200, '\n');
+	{												// reservation is the object storing data for firstName and lastName //				
+		cout << "Enter a name for the reservation: "; cin >> reservation.firstName >> reservation.lastName; 
 
-			}
-													// when reservationSize is not an integer isDigit returns 0 //				
-		} while (reservation.reservationSize > 10 || isdigit(reservation.reservationSize) == 0);
+		do{											// reservation is the object storing data for reservationSize //
+		cout << "\nEnter the number of people in the party: "; cin >> reservation.reservationSize;
+			// when reservationSize is not an integer isDigit returns 0 //
+		if (reservation.reservationSize < 1 || reservation.reservationSize > 10)
+		{
+			cout << "Party size mush be atleast 1 person and no bigger than 10 people.";
+			cin.clear();
+			cin.ignore(1200, '\n');
+		}
+		
+		if (!cin >> reservation.reservationSize)
+		{
+			cout << "Invalid input. Please enter an integer between 1 and 10: ";
+			cin.clear();
+			cin.ignore(1200, '\n');
+		}
+		} while (reservation.reservationSize < 1 || reservation.reservationSize > 10);
+		
 		cout << "\nEnter the time for the reservation in HH:MM AM/PM: "; cin >> reservation.time >> reservation.amORpm;
 		reservation.checkedIn = false;
+		
 	}
 }
 
 void confirmReservation()
 {
+	int i = 0;
 	int response = 0;
 	char choice = 0;
 	// the do while statement will allow the user to make infinitely many changes until they are
@@ -122,15 +139,14 @@ void confirmReservation()
 		cout << "\nNumber in Party: " << reservation.reservationSize;
 		cout << "\nIs this information correct [Y]es, [N]o (make changes), [C]ancel? ";
 		cin >> choice;
-		if (cin.fail())
-		{
-			cin.clear();
-			cin.ignore(1200, '\n');
-			cout << "You must enter a letter (Y/N/C) and the entry must be captialized.\n";
+		choice = toupper(choice); // Convert to uppercase
+
+		if (!isValidLetterInput(choice)) {
+			cout << "Invalid input. Please enter 'Y', 'N', or 'C': ";
 		}
-		if (choice == 'Y')
+		else if (choice == 'Y')
 		{
-			reservations[numReservations] = reservation;
+			reservations[i] = reservation;
 			numReservations++;
 		}
 		else if (choice == 'N')
@@ -138,27 +154,33 @@ void confirmReservation()
 			cout << "What would you like to change?\n"
 				<< "1. Name\n"
 				<< "2. Time\n"
-				<< "3. Number of people";
+				<< "3. Number of people\n";
 			cin >> response;
-			if (cin.fail())
+			while (!cin >> response || response < 1 || response > 3)
 			{
+				cout << "Enter an integer to the corresponding option.\n";
 				cin.clear();
 				cin.ignore(1200, '\n');
-				cout << "Enter an integer to the corresponding option.\n";
+				
 			}
 			switch (response)
 			{
 			case 1:
-				cout << "Enter a name for the reservation: ";
+				cout << "Enter a name for the reservation: \n" << endl;
 				cin >> reservation.firstName >> reservation.lastName;
 				break;
 			case 2:
-				cout << "Enter a time for the reservation: ";
+				cout << "Enter a time for the reservation:\n" << endl;
 				cin >> reservation.time >> reservation.amORpm;
 				break;
 			case 3:
-				cout << "Enter how the size of your party: ";
+				cout << "Enter how the size of your party:\n" << endl;
 				cin >> reservation.reservationSize;
+				while (!cin >> reservation.reservationSize || reservation.reservationSize < 1 || reservation.reservationSize > 10) {
+					cout << "Invalid input. Please enter an integer between 1 and 10: ";
+					cin.clear();
+					cin.ignore(1200, '\n');
+				}
 			}
 		}
 		else if (choice == 'C')
@@ -168,7 +190,7 @@ void confirmReservation()
 		else {
 			cout << "Invalid choice. You must enter Y or N or C.";
 		}
-	} while (choice == 'N');
+	} while (choice == 'N' || !isValidLetterInput(choice));
 
 }
 
@@ -192,28 +214,34 @@ void checkInReservation()
 					<< reservations[i].reservationSize << " people\n";
 			}
 		}
-		cin >> chosenReservation;
-		if (cin.fail())
-		{
-			cin.clear();
-			cin.ignore(1200, '\n');
-			cout << "Enter an integer to the corresponding reservation.\n";
-		}
-		reservations[chosenReservation - 1].checkedIn = true;
-		cout << "Reservation checked in successfully!\n";
+		do {
+			cin >> chosenReservation;
+			if (cin.fail())
+			{
+				cin.clear();
+				cin.ignore(1200, '\n');
+				cout << "Enter an integer to the corresponding reservation.\n";
+			}
+		} while (!cin.fail());
+
+		reservations[chosenReservation - 1].checkedIn = true;	
+		cout << "Reservation checked in successfully!\n";	
+		numReservations--;	
 		cout << "Choose a table to be seated:\n";
 		for (int j = 0; j <= numTables; j++) // only display tables that are greater in size and available to be sat at
 		{
 			if (orders[j].table.available && orders[j].table.size >= reservations[chosenReservation - 1].reservationSize)
 			{
 				cout << orders[j].table.tableNumber << ". " << orders[j].table.size << " people\n";	
-				cin >> selectedTable;
-				if (cin.fail())
-				{
-					cin.clear();
-					cin.ignore(1200, '\n');
-					cout << "Enter an integer to the corresponding table number.\n";
-				}
+				do {
+					cin >> selectedTable;
+					if (cin.fail())
+					{
+						cin.clear();
+						cin.ignore(1200, '\n');
+						cout << "Enter an integer to the corresponding table number.\n";
+					}
+				} while (!cin.fail());
 			}
 			else { cout << "\nThere are no tables available to be sat.\n"; }
 		}
@@ -240,13 +268,15 @@ void createOrder()
 			cout << orders[i].table.tableNumber << ". Table for " << orders[i].table.numberOfPeople << " people.\n";
 		}
 	}
-	cin >> tableToOrder;
-	if (cin.fail())
-	{
-		cin.clear();
-		cin.ignore(1200, '\n');
-		cout << "Enter an integer to the corresponding table number.\n";
-	}
+	do {
+		cin >> tableToOrder;
+		if (cin.fail())
+		{
+			cin.clear();
+			cin.ignore(1200, '\n');
+			cout << "Enter an integer to the corresponding table number.\n";
+		}
+	} while (!cin.fail());
 	if (numOrders < 51)
 	{
 		while (j < orders[tableToOrder-1].table.numberOfPeople)
@@ -369,7 +399,7 @@ void createOrder()
 	}else {
 		cout << "The restaurant is completely full!! Have people spend pay their bill and leave." << endl;
 	}
-	orders[tableToOrder - 1].isReady = true;
+	orders[tableToOrder - 1].isReady = true;	
 	cout << "\n" << numOrders; 
 	// this a checker that I created to be sure the program was logically processing everything
 	// Also numOrders can not be higher than 50 at any given time
@@ -481,11 +511,11 @@ int main()
 	do {
 		welcomeMessage();
 		cin >> response;
-		if (cin.fail())
-		{
+		if (cin.fail() || !isValidMenuChoice(response, 6)) {
+			cout << "Invalid input. Please enter an integer between 1 and 6." << endl;
 			cin.clear();
 			cin.ignore(1200, '\n');
-			cout << "Enter an integer between 1 and 6\n";
+			continue;
 		}
 		switch (response)
 		{
@@ -506,7 +536,18 @@ int main()
 			calculateBill();
 			break;
 		case 6:
-			cout << "Store is now closed. Good Bye!";
+			if (numOrders == 0 && numReservations == 0)
+			{
+				cout << "Store is now closed. Good Bye!";
+			}
+			else if (numOrders > 0)
+			{
+				cout << "You still have orders in the restuarant!";
+			}
+			else
+			{
+				cout << "Store is closed! Good Bye!";
+			}
 		}
 	} while (response != 6);
 	
