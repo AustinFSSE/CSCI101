@@ -127,11 +127,13 @@ void createReservation() {
 
 void confirmReservation()
 {
-	int i = 0;
+	int i;
 	int response = 0;
 	char choice = 0;
+
 	// the do while statement will allow the user to make infinitely many changes until they are
 	// happy with the details within the reservation
+
 	do {
 		cout << "\nPlease Confirm the reservation:";
 		cout << "\nReservation Name: " << reservation.firstName << " " << reservation.lastName;
@@ -146,7 +148,7 @@ void confirmReservation()
 		}
 		else if (choice == 'Y')
 		{
-			reservations[i] = reservation;
+			reservations[numReservations] = reservation;
 			numReservations++;
 		}
 		else if (choice == 'N')
@@ -206,7 +208,7 @@ void checkInReservation()
 			if (!reservations[i].checkedIn) // only display reservations that are not checked in
 			{
 				cout << i + 1 << ". "
-					
+
 					<< reservations[i].firstName << " "
 					<< reservations[i].lastName << " - "
 					<< reservations[i].time << " "
@@ -214,45 +216,30 @@ void checkInReservation()
 					<< reservations[i].reservationSize << " people\n";
 			}
 		}
-		do {
-			cin >> chosenReservation;
-			if (cin.fail())
-			{
-				cin.clear();
-				cin.ignore(1200, '\n');
-				cout << "Enter an integer to the corresponding reservation.\n";
-			}
-		} while (!cin.fail());
+		cin >> chosenReservation;
 
-		reservations[chosenReservation - 1].checkedIn = true;	
-		cout << "Reservation checked in successfully!\n";	
-		numReservations--;	
+		reservations[chosenReservation - 1].checkedIn = true;
+		cout << "Reservation checked in successfully!\n";
 		cout << "Choose a table to be seated:\n";
-		for (int j = 0; j <= numTables; j++) // only display tables that are greater in size and available to be sat at
+
+		for (int j = 0; j < numTables; j++) // only display tables that are greater in size and available to be sat at
 		{
 			if (orders[j].table.available && orders[j].table.size >= reservations[chosenReservation - 1].reservationSize)
 			{
-				cout << orders[j].table.tableNumber << ". " << orders[j].table.size << " people\n";	
-				do {
-					cin >> selectedTable;
-					if (cin.fail())
-					{
-						cin.clear();
-						cin.ignore(1200, '\n');
-						cout << "Enter an integer to the corresponding table number.\n";
-					}
-				} while (!cin.fail());
+				cout << orders[j].table.tableNumber << ". " << orders[j].table.size << " people\n";
 			}
-			else { cout << "\nThere are no tables available to be sat.\n"; }
 		}
+		do { 
+			cin >> selectedTable; 
+		} while (cin.fail());
 		
+
 		orders[selectedTable - 1].table.available = false;
 
 		// this sets the size of the table equal to the size of the reservation
 		orders[selectedTable - 1].table.numberOfPeople = reservations[chosenReservation - 1].reservationSize;
 
-	}
-	else { cout << "You must make a reservation first." << endl; }
+	} else { cout << "You must make a reservation first." << endl; }
 }
 
 void createOrder()
@@ -276,7 +263,7 @@ void createOrder()
 			cin.ignore(1200, '\n');
 			cout << "Enter an integer to the corresponding table number.\n";
 		}
-	} while (!cin.fail());
+	} while (cin.fail());
 	if (numOrders < 51)
 	{
 		while (j < orders[tableToOrder-1].table.numberOfPeople)
@@ -396,7 +383,7 @@ void createOrder()
 			}
 			j++;
 		}	
-	}else {
+	} else {
 		cout << "The restaurant is completely full!! Have people spend pay their bill and leave." << endl;
 	}
 	orders[tableToOrder - 1].isReady = true;	
