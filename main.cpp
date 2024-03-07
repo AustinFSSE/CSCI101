@@ -98,25 +98,25 @@ void createReservation() {
 		cout << "You are at the maximum reservations!" << endl;
 	}
 	else
-	{												// reservation is the object storing data for firstName and lastName //				
+	{										// reservation is the object storing data for firstName and lastName //				
 		cout << "Enter a name for the reservation: "; cin >> reservation.firstName >> reservation.lastName; 
 
-		do{											// reservation is the object storing data for reservationSize //
+		do{									// reservation is the object storing data for reservationSize //
 		cout << "\nEnter the number of people in the party: "; cin >> reservation.reservationSize;
 			// when reservationSize is not an integer isDigit returns 0 //
-		if (reservation.reservationSize < 1 || reservation.reservationSize > 10)
-		{
-			cout << "Party size mush be atleast 1 person and no bigger than 10 people.";
-			cin.clear();
-			cin.ignore(1200, '\n');
-		}
+			if (reservation.reservationSize < 1 || reservation.reservationSize > 10)
+			{
+				cout << "Party size mush be atleast 1 person and no bigger than 10 people.";
+				cin.clear();
+				cin.ignore(1200, '\n');
+			}
 		
-		if (!cin >> reservation.reservationSize)
-		{
-			cout << "Invalid input. Please enter an integer between 1 and 10: ";
-			cin.clear();
-			cin.ignore(1200, '\n');
-		}
+			if (!cin >> reservation.reservationSize)
+			{
+				cout << "Invalid input. Please enter an integer between 1 and 10: ";
+				cin.clear();
+				cin.ignore(1200, '\n');
+			}
 		} while (reservation.reservationSize < 1 || reservation.reservationSize > 10);
 		
 		cout << "\nEnter the time for the reservation in HH:MM AM/PM: "; cin >> reservation.time >> reservation.amORpm;
@@ -177,12 +177,15 @@ void confirmReservation()
 				break;
 			case 3:
 				cout << "Enter how the size of your party:\n" << endl;
-				cin >> reservation.reservationSize;
-				while (!cin >> reservation.reservationSize || reservation.reservationSize < 1 || reservation.reservationSize > 10) {
-					cout << "Invalid input. Please enter an integer between 1 and 10: ";
-					cin.clear();
-					cin.ignore(1200, '\n');
-				}
+				do {
+					cin >> reservation.reservationSize;
+					if (cin.fail() || reservation.reservationSize < 1 || reservation.reservationSize > 10)
+					{
+						cout << "Invalid input. Please enter an integer between 1 and 10: ";
+						cin.clear();
+						cin.ignore(1200, '\n');
+					}
+				} while (cin.fail() || reservation.reservationSize < 1 || reservation.reservationSize > 10);
 			}
 		}
 		else if (choice == 'C')
@@ -264,7 +267,7 @@ void createOrder()
 			cout << "Enter an integer to the corresponding table number.\n";
 		}
 	} while (cin.fail());
-	if (numOrders < 51)
+	if (numOrders < 11)
 	{
 		while (j < orders[tableToOrder-1].table.numberOfPeople)
 		{
@@ -384,7 +387,8 @@ void createOrder()
 			j++;
 		}	
 	} else {
-		cout << "The restaurant is completely full!! Have people spend pay their bill and leave." << endl;
+		cout << "The restaurant is completely full!! Have people pay their bill." << endl;
+
 	}
 	orders[tableToOrder - 1].isReady = true;	
 	cout << "\n" << numOrders; 
@@ -397,7 +401,7 @@ void completeOrder()
 	int chosenTable;
 	for (int i = 0; i < numTables; i++)
 	{
-		if (orders[i].table.numberOfPeople > 0 && orders[i].complete == false)	
+		if (orders[i].table.numberOfPeople > 0 && orders[i].isReady == true)	
 		{
 			cout << orders[i].table.tableNumber << ". Table for " << orders[i].table.numberOfPeople << endl;
 			
@@ -450,6 +454,7 @@ void calculateBill()
 	orders[selectedTable - 1].complete = false; // resetting values
 	orders[selectedTable - 1].isReady = false; // resetting values
 	numOrders -= orders[selectedTable - 1].table.numberOfPeople; // resetting values
+	cout << numOrders << "\n";
 }
 
 int main() 
@@ -536,6 +541,6 @@ int main()
 				cout << "Store is closed! Good Bye!";
 			}
 		}
-	} while (response != 6);
+	} while (response != 6 || numOrders > 0);
 	
 }
